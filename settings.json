@@ -1,0 +1,40 @@
+{
+    "workbench.colorTheme": "Visual Studio 2019 Dark",
+    "workbench.iconTheme": "vs-minimal",
+    "workbench.editor.enablePreview": false,
+    "workbench.editor.enablePreviewFromCodeNavigation": true,
+    "workbench.editor.empty.hint": "hidden",
+    "workbench.editorAssociations": {
+        "*.copilotmd": "vscode.markdown.preview.editor",
+        "*.exe": "default"
+    },
+    "window.density.editorTabHeight": "compact",
+    "files.autoSave": "afterDelay",
+    "security.workspace.trust.untrustedFiles": "open",
+    "security.allowedUNCHosts": [
+        "Essen48-pc",
+        "ESSEN31-PC",
+        "ESSEN63-PC"
+    ],
+    "redhat.telemetry.enabled": true,
+    "jdk.jdkhome": "c:\\Users\\essen48\\Desktop\\New folder (2)\\Oracle_JDK-23",
+    "java.help.collectErrorLog": true,
+    "java.help.firstView": "overview",
+    "launch": {
+        "configurations": []
+    },
+    "[jsonc]": {
+        "editor.defaultFormatter": "rvest.vs-code-prettier-eslint"
+    },
+    "[csharp]": {
+        "breadcrumbs.showArrays": true,
+        "editor.maxTokenizationLineLength": 2500,
+        "editor.formatOnType": true
+    },
+    "editor.unicodeHighlight.invisibleCharacters": false,
+    "editor.unicodeHighlight.ambiguousCharacters": false,
+    "wcai.mcp.port": 65429,
+    "workbench.commandPalette.experimental.askChatLocation": "quickChat",
+    "containers.containerClient": "com.microsoft.visualstudio.containers.docker",
+    "containers.orchestratorClient": "com.microsoft.visualstudio.orchestrators.dockercompose"
+}

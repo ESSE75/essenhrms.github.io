@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>HRMS Login Portal</title>
+<style>
+  body {
+    background: #eaf1fb;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+  }
+  .container {
+    max-width: 400px;
+    margin: 5% auto;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(44,62,80,0.14);
+    padding: 2.8rem 2.2rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .container::before {
+    content: "";
+    position: absolute;
+    top: -60px;
+    left: -60px;
+    width: 140px;
+    height: 140px;
+    background: radial-gradient(circle, #6dd5fa33 60%, transparent 100%);
+    z-index: 0;
+  }
+  .container::after {
+    content: "";
+    position: absolute;
+    bottom: -60px;
+    right: -60px;
+    width: 120px;
+    height: 120px;
+    background: radial-gradient(circle, #2980b933 60%, transparent 100%);
+    z-index: 0;
+  }
+  .container > * {
+    position: relative;
+    z-index: 1;
+  }
+  h2 {
+    margin-top: 0;
+    color: #223043;
+    letter-spacing: 0.02em;
+    font-size: 2rem;
+    font-weight: 700;
+    text-align: center;
+  }
+  .tabs {
+    display: flex;
+    margin-bottom: 2.2rem;
+    background: #f4f8fc;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(44,62,80,0.04);
+  }
+  .tab {
+    flex: 1;
+    text-align: center;
+    padding: 1rem 0;
+    cursor: pointer;
+    font-weight: 600;
+    border-bottom: 3px solid transparent;
+    color: #2980b9;
+    background: none;
+    transition: border 0.2s, background 0.2s, color 0.2s;
+    font-size: 1.1rem;
+    letter-spacing: 0.01em;
+    user-select: none;
+  }
+  .tab.active {
+    border-bottom: 3px solid #2980b9;
+    color: #223043;
+    background: #eaf1fb;
+  }
+  .form-section {
+    display: none;
+    animation: fadeIn 0.5s ease forwards;
+  }
+  .form-section.active {
+    display: block;
+  }
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  input[type="text"],
+  input[type="email"],
+  input[type="password"] {
+    width: 100%;
+    padding: 0.8rem;
+    margin-bottom: 1.1rem;
+    border-radius: 8px;
+    border: 1.5px solid #bfc9d1;
+    font-size: 1rem;
+    background: #f8fbff;
+    transition: border 0.2s, box-shadow 0.2s;
+    box-sizing: border-box;
+  }
+  input[type="text"]:focus,
+  input[type="email"]:focus,
+  input[type="password"]:focus {
+    border-color: #29b97d;
+    outline: none;
+    box-shadow: 0 0 0 2px #b3d8f6;
+  }
+  button {
+    width: 100%;
+    background: linear-gradient(90deg, #24d0ee 60%, #6dd5fa 100%);
+    color: #fff;
+    border: none;
+    padding: 0.8rem;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, box-shadow 0.2s;
+    box-shadow: 0 2px 8px rgba(44,62,80,0.07);
+    margin-bottom: 0.5rem;
+  }
+  button:hover:not(:disabled) {
+    background: linear-gradient(90deg, #223043 60%, #2980b9 100%);
+    box-shadow: 0 4px 16px rgba(44,62,80,0.12);
+  }
+  button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  .toggle {
+    color: #2980b9;
+    cursor: pointer;
+    text-align: right;
+    display: block;
+    margin-bottom: 1rem;
+    font-size: 0.97rem;
+    transition: color 0.2s;
+    user-select: none;
+  }
+  .toggle:hover {
+    color: #223043;
+    text-decoration: underline;
+  }
+  .error {
+    color: #e74c3c;
+    margin-bottom: 1rem;
+    font-size: 0.98rem;
+    text-align: center;
+  }
+  .success {
+    color: #27ae60;
+    margin-bottom: 1rem;
+    font-size: 0.98rem;
+    text-align: center;
+  }
+  .otp-box {
+    display: flex;
+    gap: 0.5rem;
+  }
+  .otp-box input {
+    flex: 1;
+    text-align: center;
+    letter-spacing: 0.2em;
+    font-size: 1.2rem;
+    padding: 0.7rem 0;
+    background: #f4f8fc;
+    border-radius: 8px;
+    border: 1.5px solid #bfc9d1;
+    transition: border 0.2s, box-shadow 0.2s;
+  }
+  .otp-box input:focus {
+    border-color: #29b97d;
+    outline: none;
+    box-shadow: 0 0 0 2px #b3d8f6;
+  }
+  /* Responsive */
+  @media (max-width: 450px) {
+    .container {
+      margin: 10% 1rem;
+      padding: 2rem 1.5rem;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="container" role="main" aria-label="HRMS Login Portal">
+  <div style="text-align:center; margin-bottom: 1.2rem;">
+    <img src="https://www.essen.org.in/images/essen.jpg" alt="HRMS Logo" style="max-width:120px; max-height:80px;" />
+  </div>
+
+  <nav class="tabs" role="tablist" aria-label="User  type selection">
+    <button class="tab active" id="adminTab" role="tab" aria-selected="true" aria-controls="adminSection" tabindex="0" type="button">Admin</button>
+    <button class="tab" id="empTab" role="tab" aria-selected="false" aria-controls="empSection" tabindex="-1" type="button">Employee</button>
+    <button class="tab" id="accountantTab" role="tab" aria-selected="false" aria-controls="accountantSection" tabindex="-1" type="button">Accountant</button>
+  </nav>
+
+  <!-- Admin Section -->
+  <section class="form-section active" id="adminSection" role="tabpanel" aria-labelledby="adminTab" tabindex="0">
+    <h2 id="adminFormTitle">Admin Login (OTP)</h2>
+    <div id="adminMsg" class="error" aria-live="polite"></div>
+
+    <form id="adminLoginForm" novalidate autocomplete="off">
+      <input type="email" id="adminEmail" placeholder="Email" required aria-required="true" autocomplete="email" />
+      <input type="text" id="adminPhone" placeholder="Phone Number" required aria-required="true" autocomplete="tel" pattern="\d{10}" title="10 digit phone number" />
+      <input type="password" id="adminPasskey" placeholder="Passkey" required aria-required="true" autocomplete="current-password" />
+      <div id="otpArea" style="display:none;">
+        <div class="otp-box">
+          <input type="text" id="adminOtp" maxlength="6" placeholder="Enter OTP" autocomplete="one-time-code" inputmode="numeric" pattern="\d{6}" title="6 digit OTP" aria-label="Enter OTP" />
+        </div>
+      </div>
+      <button type="button" id="sendOtpBtn">Send OTP</button>
+      <button type="button" id="verifyOtpBtn" style="display:none;">Verify OTP</button>
+    </form>
+
+    <form id="adminSignupForm" style="display:none;" novalidate autocomplete="off">
+      <input type="text" id="newAdminUser " placeholder="Username" required aria-required="true" autocomplete="username" />
+      <input type="email" id="newAdminEmail" placeholder="Email" required aria-required="true" autocomplete="email" />
+      <input type="text" id="newAdminPhone" placeholder="Phone Number" required aria-required="true" autocomplete="tel" pattern="\d{10}" title="10 digit phone number" />
+      <button type="button" id="adminSignupBtn">Sign Up</button>
+    </form>
+
+    <span class="toggle" id="adminToggle" role="button" tabindex="0" aria-pressed="false">Don't have an account? Sign Up</span>
+  </section>
+
+  <!-- Employee Section -->
+  <section class="form-section" id="empSection" role="tabpanel" aria-labelledby="empTab" tabindex="0" hidden>
+    <h2 id="empFormTitle">Employee Login</h2>
+    <div id="empMsg" class="error" aria-live="polite"></div>
+
+    <form id="empLoginForm" novalidate autocomplete="off">
+      <input type="text" id="empId" placeholder="Employee ID" required aria-required="true" autocomplete="username" />
+      <input type="email" id="empEmail" placeholder="Email ID" required aria-required="true" autocomplete="email" />
+      <button type="button" id="empLoginBtn">Login</button>
+    </form>
+
+    <form id="empSignupForm" style="display:none;" novalidate autocomplete="off">
+      <input type="text" id="newEmpId" placeholder="Employee ID" required aria-required="true" autocomplete="username" />
+      <input type="email" id="newEmpEmail" placeholder="Email ID" required aria-required="true" autocomplete="email" />
+      <input type="password" id="newEmpPass" placeholder="Password" required aria-required="true" autocomplete="new-password" />
+      <button type="button" id="empSignupBtn">Sign Up</button>
+    </form>
+
+    <span class="toggle" id="empToggle" role="button" tabindex="0" aria-pressed="false">Don't have an account? Sign Up</span>
+  </section>
+
+  <!-- Accountant Section -->
+  <section class="form-section" id="accountantSection" role="tabpanel" aria-labelledby="accountantTab" tabindex="0" hidden>
+    <h2 id="accountantFormTitle">Accountant Login</h2>
+    <div id="accountantMsg" class="error" aria-live="polite"></div>
+
+    <form id="accountantLoginForm" novalidate autocomplete="off">
+      <input type="email" id="accountantEmail" placeholder="Email" required aria-required="true" autocomplete="email" />
+      <input type="password" id="accountantPasskey" placeholder="Passkey" required aria-required="true" autocomplete="current-password" />
+      <button type="button" id="accountantLoginBtn">Login</button>
+    </form>
+  </section>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+<script>
+  // Initialize EmailJS with your user ID
+  emailjs.init("YOUR_USER_ID"); // Replace YOUR_USER_ID with your actual EmailJS user ID
+
+  // Tab switching logic
+  const tabs = {
+    admin: {
+      tabBtn: document.getElementById('adminTab'),
+      section: document.getElementById('adminSection'),
+      toggleBtn: document.getElementById('adminToggle'),
+      loginForm: document.getElementById('adminLoginForm'),
+      signupForm: document.getElementById('adminSignupForm'),
+      formTitle: document.getElementById('adminFormTitle'),
+      msgBox: document.getElementById('adminMsg'),
+      sendOtpBtn: document.getElementById('sendOtpBtn'),
+      verifyOtpBtn: document.getElementById('verifyOtpBtn'),
+      otpArea: document.getElementById('otpArea'),
+    },
+    employee: {
+      tabBtn: document.getElementById('empTab'),
+      section: document.getElementById('empSection'),
+      toggleBtn: document.getElementById('empToggle'),
+      loginForm: document.getElementById('empLoginForm'),
+      signupForm: document.getElementById('empSignupForm'),
+      formTitle: document.getElementById('empFormTitle'),
+      msgBox: document.getElementById('empMsg'),
+    },
+    accountant: {
+      tabBtn: document.getElementById('accountantTab'),
+      section: document.getElementById('accountantSection'),
+      msgBox: document.getElementById('accountantMsg'),
+      emailInput: document.getElementById('accountantEmail'),
+      passkeyInput: document.getElementById('accountantPasskey'),
+      loginBtn: document.getElementById('accountantLoginBtn'),
+    }
+  };
+
+  function showTab(tabName) {
+    Object.keys(tabs).forEach(key => {
+      const isActive = key === tabName;
+      const tab = tabs[key];
+      tab.tabBtn.classList.toggle('active', isActive);
+      tab.tabBtn.setAttribute('aria-selected', isActive);
+      tab.tabBtn.tabIndex = isActive ? 0 : -1;
+      tab.section.classList.toggle('active', isActive);
+      tab.section.hidden = !isActive;
+      if (isActive) tab.section.focus();
+      // Reset messages on tab switch
+      if (tab.msgBox) tab.msgBox.textContent = '';
+    });
+  }
+
+  // Initial tab setup
+  showTab('admin');
+
+  // Attach tab click handlers
+  tabs.admin.tabBtn.addEventListener('click', () => showTab('admin'));
+  tabs.employee.tabBtn.addEventListener('click', () => showTab('employee'));
+  tabs.accountant.tabBtn.addEventListener('click', () => showTab('accountant'));
+
+  // Admin Login/Signup toggle
+  let adminIsLogin = true;
+  tabs.admin.toggleBtn.addEventListener('click', toggleAdminForm);
+  tabs.admin.toggleBtn.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      toggleAdminForm();
+    }
+  });
+  function toggleAdminForm() {
+    adminIsLogin = !adminIsLogin;
+    tabs.admin.loginForm.style.display = adminIsLogin ? '' : 'none';
+    tabs.admin.signupForm.style.display = adminIsLogin ? 'none' : '';
+    tabs.admin.formTitle.textContent = adminIsLogin ? 'Admin Login (OTP)' : 'Admin Sign Up';
+    tabs.admin.toggleBtn.textContent = adminIsLogin ? "Don't have an account? Sign Up" : "Already have an account? Login";
+    tabs.admin.toggleBtn.setAttribute('aria-pressed', !adminIsLogin);
+    tabs.admin.msgBox.textContent = '';
+    // Reset OTP area and buttons
+    tabs.admin.otpArea.style.display = 'none';
+    tabs.admin.sendOtpBtn.style.display = '';
+    tabs.admin.verifyOtpBtn.style.display = 'none';
+  }
+
+  // Employee Login/Signup toggle
+  let empIsLogin = true;
+  tabs.employee.toggleBtn.addEventListener('click', toggleEmpForm);
+  tabs.employee.toggleBtn.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      toggleEmpForm();
+    }
+  });
+  function toggleEmpForm() {
+    empIsLogin = !empIsLogin;
+    tabs.employee.loginForm.style.display = empIsLogin ? '' : 'none';
+    tabs.employee.signupForm.style.display = empIsLogin ? 'none' : '';
+    tabs.employee.formTitle.textContent = empIsLogin ? 'Employee Login' : 'Employee Sign Up';
+    tabs.employee.toggleBtn.textContent = empIsLogin ? "Don't have an account? Sign Up" : "Already have an account? Login";
+       toggleBtn.setAttribute('aria-pressed', !empIsLogin);
+    tabs.employee.msgBox.textContent = '';
+  }
+
+  // Admin OTP login variables
+  let adminOtp = "";
+  let adminOtpEmail = "";
+
+  // Admin Send OTP button
+  tabs.admin.sendOtpBtn.addEventListener('click', sendAdminOtp);
+  function sendAdminOtp() {
+    const email = document.getElementById('adminEmail').value.trim().toLowerCase();
+    const phone = document.getElementById('adminPhone').value.trim();
+    const passkey = document.getElementById('adminPasskey').value;
+
+    if (!email || !phone || !passkey) {
+      setAdminMsg('Please fill all fields.', 'error');
+      return;
+    }
+    // Phone number validation: only allow registered admin phone number
+    if (phone !== "6281968596") {
+      setAdminMsg("Only the registered admin phone number is allowed.", "error");
+      return;
+    }
+    // Generate 6-digit OTP
+    adminOtp = Math.floor(100000 + Math.random() * 900000).toString();
+    adminOtpEmail = email;
+
+    setAdminMsg("Sending OTP...", "");
+
+    // Send OTP email via EmailJS
+    emailjs.send("YOUR_SERVICE_ID", "YOUR_TEMPLATE_ID", {
+      to_email: "ecommercial97@gmail.com",
+      otp: adminOtp,
+    }).then(() => {
+      setAdminMsg("OTP sent to your email!", "success");
+      tabs.admin.otpArea.style.display = "";
+      tabs.admin.sendOtpBtn.style.display = "none";
+      tabs.admin.verifyOtpBtn.style.display = "";
+      document.getElementById("adminOtp").value = "";
+      setTimeout(() => document.getElementById("adminOtp").focus(), 100);
+    }).catch((error) => {
+      console.error(error);
+      setAdminMsg("Failed to send OTP. Try again.", "error");
+    });
+  }
+
+  // Admin Verify OTP button
+  tabs.admin.verifyOtpBtn.addEventListener('click', verifyAdminOtp);
+  function verifyAdminOtp() {
+    const enteredOtp = document.getElementById("adminOtp").value.trim();
+    const email = document.getElementById("adminEmail").value.trim().toLowerCase();
+    const phone = document.getElementById("adminPhone").value.trim();
+    const passkey = document.getElementById("adminPasskey").value;
+
+    if (!enteredOtp) {
+      setAdminMsg("Please enter the OTP.", "error");
+      return;
+    }
+
+    if (
+      enteredOtp === adminOtp &&
+      email === "essenhrms@essen" &&
+      phone === "123456789" &&
+      passkey === "ESSENHRMS@ESSEN"
+    ) {
+      localStorage.setItem("hrms_loggedin_admin", adminOtpEmail);
+      setAdminMsg("Login successful! Redirecting...", "success");
+      setTimeout(() => {
+        window.location.href = ("D:\HRMS DATA SHEETS\hrms\HRMS DEMO.html");
+      }, 1000);
+    } else {
+      setAdminMsg("Invalid OTP, email, phone, or passkey.", "error");
+    }
+  }
+
+  // Admin Signup button
+  document.getElementById("adminSignupBtn").addEventListener("click", adminSignup);
+  function adminSignup() {
+    const username = document.getElementById("newAdminUser  ").value.trim();
+    const email = document.getElementById("newAdminEmail").value.trim().toLowerCase();
+    const phone = document.getElementById("newAdminPhone").value.trim();
+
+    if (!username || !email || !phone) {
+      setAdminMsg("Please fill all signup fields.", "error");
+      return;
+    }
+
+    let admins = JSON.parse(localStorage.getItem("hrms_admins") || "[]");
+    if (admins.find((a) => a.email === email)) {
+      setAdminMsg("Email already registered.", "error");
+      return;
+    }
+    admins.push({ username, email, phone });
+    localStorage.setItem("hrms_admins", JSON.stringify(admins));
+    toggleAdminForm();
+    setAdminMsg("Signup successful! Please login with your email and OTP.", "success");
+  }
+
+  // Employee Login button
+  document.getElementById("empLoginBtn").addEventListener("click", empLogin);
+  function empLogin() {
+    const id = document.getElementById("empId").value.trim();
+    const email = document.getElementById("empEmail").value.trim().toLowerCase();
+
+    if (!id || !email) {
+      setEmpMsg("Please fill all login fields.", "error");
+      return;
+    }
+
+    let employees = JSON.parse(localStorage.getItem("hrms_employees") || "[]");
+    const emp = employees.find(
+      (e) =>
+        (e.id || "").toLowerCase() === id.toLowerCase() &&
+        (e.email || "").toLowerCase() === email
+    );
+    if (emp) {
+      localStorage.setItem("hrms_loggedin_empid", emp.id);
+      setEmpMsg("Login successful! Redirecting...", "success");
+      setTimeout(() => {
+        window.location.href = "file:///D:/Local%20Disk/HRMS%20SITE/HRMS%20USER%20SIDE.html";
+      }, 1000);
+    } else {
+      setEmpMsg("Invalid Employee ID or Email ID.", "error");
+    }
+  }
+
+  // Employee Signup button
+  document.getElementById("empSignupBtn").addEventListener("click", empSignup);
+  function empSignup() {
+    const id = document.getElementById("newEmpId").value.trim();
+    const email = document.getElementById("newEmpEmail").value.trim().toLowerCase();
+    const password = document.getElementById("newEmpPass").value;
+
+    if (!id || !email || !password) {
+      setEmpMsg("Please fill all signup fields.", "error");
+      return;
+    }
+
+    let employees = JSON.parse(localStorage.getItem("hrms_employees") || "[]");
+    if (employees.find((e) => (e.id || "").toLowerCase() === id.toLowerCase())) {
+      setEmpMsg("Employee ID already exists.", "error");
+      return;
+    }
+    employees.push({ id, email, password });
+    localStorage.setItem("hrms_employees", JSON.stringify(employees));
+    setEmpMsg("Signup successful! You can now login.", "success");
+    toggleEmpForm();
+  }
+
+  // Accountant direct login with passkey only
+  tabs.accountant.loginBtn.addEventListener("click", () => {
+    const email = tabs.accountant.emailInput.value.trim().toLowerCase();
+    const passkey = tabs.accountant.passkeyInput.value;
+
+    if (!email || !passkey) {
+      setAccountantMsg("Please fill all fields.", "error");
+      return;
+    }
+
+    // Hardcoded valid credentials (update as needed)
+    const validEmail = "accountant@essen.org.in";
+    const validPasskey = "ESSEN7HRMS";
+
+    if (email === validEmail && passkey === validPasskey) {
+      localStorage.setItem("hrms_loggedin_accountant", email);
+      setAccountantMsg("Login successful! Redirecting...", "success");
+      setTimeout(() => {
+        window.location.href = "file:///D:/HRMS%20DATA%20SHEETS/hrms/HRMS%20DEMO.html";
+      }, 1000);
+    } else {
+      setAccountantMsg("Invalid email or passkey.", "error");
+    }
+  });
+
+  // Utility functions to set messages
+  function setAdminMsg(message, type) {
+    tabs.admin.msgBox.textContent = message;
+    tabs.admin.msgBox.className = type === "error" ? "error" : type === "success" ? "success" : "";
+  }
+  function setEmpMsg(message, type) {
+    tabs.employee.msgBox.textContent = message;
+    tabs.employee.msgBox.className = type === "error" ? "error" : type === "success" ? "success" : "";
+  }
+  function setAccountantMsg(message, type) {
+    tabs.accountant.msgBox.textContent = message;
+    tabs.accountant.msgBox.className = type === "error" ? "error" : type === "success" ? "success" : "";
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>HRMS Employee Portal</title>
+    <style>
+        body { margin: 0; font-family: 'Segoe UI', Arial, sans-serif; background: linear-gradient(135deg, #f4f6f8 60%, #eaf1fb 100%); }
+        .container { display: flex; min-height: 100vh; }
+        .sidebar {
+            width: 240px; background: #223043; color: #fff; display: flex; flex-direction: column; box-shadow: 2px 0 8px rgba(44,62,80,0.07);
+        }
+        .sidebar h2 { margin: 0; padding: 1.5rem 1rem 1rem 1.5rem; font-size: 1.3rem; border-bottom: 1px solid #223043; }
+        .menu { list-style: none; padding: 0; margin: 0; flex: 1; }
+        .menu li {
+            padding: 1rem 1.5rem; cursor: pointer; border-bottom: 1px solid #1a2533;
+            transition: background 0.2s, color 0.2s, font-weight 0.2s;
+            font-size: 1.05rem;
+            letter-spacing: 0.01em;
+        }
+        .menu li:hover, .menu li.active {
+            background: linear-gradient(90deg, #1a2533 80%, #2980b9 100%);
+            color: #fff; font-weight: bold;
+            box-shadow: 2px 0 8px rgba(41,128,185,0.08);
+        }
+        .main-content { flex: 1; padding: 2.5rem 2rem; background: transparent; }
+        .panel {
+            background: #fff; border-radius: 12px; box-shadow: 0 4px 24px rgba(44,62,80,0.10);
+            padding: 2.5rem 2rem; min-height: 350px; transition: box-shadow 0.2s;
+        }
+        .panel h1 { margin-top: 0; font-size: 1.5rem; color: #223043; }
+        .profile-info { display: flex; gap: 2rem; align-items: flex-start; }
+        .profile-pic {
+            width: 110px; height: 110px; border-radius: 50%; background: #eaf1fb;
+            display: flex; align-items: center; justify-content: center; font-size: 2.5rem; color: #2980b9;
+            border: 3px solid #2980b9; margin-right: 1.5rem;
+            overflow: hidden;
+        }
+        .profile-pic img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+        .profile-details { flex: 1; }
+        .profile-details table { width: 100%; border-collapse: collapse; }
+        .profile-details td { padding: 0.4rem 0.7rem; }
+        .profile-details td.label { color: #888; font-weight: 500; width: 120px; }
+        .badge {
+            display: inline-block; padding: 2px 12px; border-radius: 12px; font-size: 1em; font-weight: 600;
+        }
+        .badge-present { background: #27ae60; color: #fff; }
+        .badge-absent { background: #e74c3c; color: #fff; }
+        .badge-leave { background: #f39c12; color: #fff; }
+        .badge-late { background: #e67e22; color: #fff; }
+        .badge-halfday { background: #9b59b6; color: #fff; }
+        /* Advanced Table Styles */
+        .table-responsive { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1.2rem; }
+        th, td { padding: 0.7rem 1rem; text-align: left; }
+        th { background: #eaf1fb; color: #223043; font-weight: 600; }
+        tr:nth-child(even) { background: #f8fafc; }
+        tr:hover { background: #eaf1fb; }
+        .doc-link {
+            color: #fff;
+            background: #2980b9;
+            padding: 6px 18px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background 0.2s;
+            display: inline-block;
+        }
+        .doc-link:hover { background: #223043; }
+        @media (max-width: 600px) {
+            th, td { padding: 0.4rem 0.5rem; font-size: 0.98em; }
+        }
+        @media (max-width: 900px) {
+            .container { flex-direction: column; }
+            .sidebar { width: 100%; flex-direction: row; }
+            .menu { display: flex; flex-direction: row; }
+            .menu li { flex: 1; border-bottom: none; border-right: 1px solid #1a2533; }
+            .main-content { padding: 1rem; }
+            .panel { padding: 1rem; }
+        }
+        .sync-indicator {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #27ae60;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+            display: none;
+        }
+        .sync-indicator.syncing {
+            display: block;
+            background: #f39c12;
+        }
+        .sync-indicator.synced {
+            display: block;
+            background: #27ae60;
+        }
+        /* Form Styles */
+        input, select, textarea {
+            margin-bottom: 0.5rem; padding: 0.5rem; border-radius: 5px; border: 1px solid #bfc9d1;
+            font-size: 1rem; outline: none; transition: border 0.2s, box-shadow 0.2s;
+        }
+        input:focus, select:focus, textarea:focus {
+            border: 1.5px solid #2980b9;
+            box-shadow: 0 0 0 2px #eaf1fb;
+        }
+        button {
+            background: linear-gradient(90deg, #2d3e50 80%, #2980b9 100%);
+            color: #fff; border: none; cursor: pointer; font-weight: 500;
+            transition: background 0.2s, box-shadow 0.2s;
+            box-shadow: 0 2px 8px rgba(44,62,80,0.07);
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+        }
+        button:hover {
+            background: linear-gradient(90deg, #1a2533 80%, #1c4e80 100%);
+            box-shadow: 0 4px 16px rgba(41,128,185,0.10);
+        }
+        /* Modal Styles */
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 1000; 
+            left: 0; 
+            top: 0; 
+            width: 100%; 
+            height: 100%; 
+            overflow: auto; 
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto; 
+            padding: 20px; 
+            border: 1px solid #888;
+            width: 80%; 
+            max-width: 600px;
+            border-radius: 10px;
+            box-shadow: 0 4px 24px rgba(44,62,80,0.18);
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+        }
+        /* Calendar Styles */
+        .calendar-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 1rem 0;
+        }
+        .calendar-day {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: default;
+        }
+        .calendar-present {
+            background-color: #27ae60;
+            color: white;
+        }
+        .calendar-absent {
+            background-color: #e74c3c;
+            color: white;
+        }
+        .calendar-leave {
+            background-color: #f39c12;
+            color: white;
+        }
+        .calendar-late {
+            background-color: #e67e22;
+            color: white;
+        }
+        .calendar-halfday {
+            background-color: #9b59b6;
+            color: white;
+        }
+        .calendar-empty {
+            background-color: #ecf0f1;
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="sidebar">
+        <div style="text-align:center; padding-top:1.2rem; padding-bottom:0.5rem;">
+            <img src="https://www.essen.org.in/images/essen.jpg" alt="Company Logo" style="max-width:120px; max-height:60px; border-radius:8px;">
+        </div>
+        <h2>Employee Portal</h2>
+        <ul class="menu" id="menu">
+            <li class="active" data-panel="myprofile">My Profile</li>
+            <li data-panel="myattendance">My Attendance</li>
+            <li data-panel="myleaves">My Leaves</li>
+            <li data-panel="mypayslips">My Payslips</li>
+            <li data-panel="mydocuments">My Documents</li>
+            <li data-panel="aiassistant">AI Assistant</li>
+        </ul>
+    </div>
+    <div class="main-content">
+        <div class="panel" id="panel-content"></div>
+    </div>
+</div>
+<div class="sync-indicator" id="syncIndicator">Syncing with HRMS...</div>
+
+<!-- Leave Request Modal -->
+<div id="leaveModal" class="modal">
+    <div class="modal-content">
+        <span class="close" id="closeLeaveModal">&times;</span>
+        <h2 style="margin-top:0;font-size:1.25rem;color:#223043;">Request Leave</h2>
+        <form id="leaveForm">
+            <div style="margin-bottom:1rem;">
+                <label>Type:</label>
+                <select id="leaveType" required style="width:100%;padding:7px 10px;border-radius:6px;border:1px solid #ccc;">
+                    <option value="">Select</option>
+                    <option value="Casual">Casual</option>
+                    <option value="Sick">Sick</option>
+                    <option value="Paid">Paid</option>
+                </select>
+            </div>
+            <div style="margin-bottom:1rem;">
+                <label>From:</label>
+                <input type="date" id="leaveFrom" required style="width:100%;padding:7px 10px;border-radius:6px;border:1px solid #ccc;">
+            </div>
+            <div style="margin-bottom:1rem;">
+                <label>To:</label>
+                <input type="date" id="leaveTo" required style="width:100%;padding:7px 10px;border-radius:6px;border:1px solid #ccc;">
+            </div>
+            <div style="margin-bottom:1rem;">
+                <label>Reason:</label>
+                <textarea id="leaveReason" rows="2" style="width:100%;padding:7px 10px;border-radius:6px;border:1px solid #ccc;"></textarea>
+            </div>
+            <div style="text-align:right;">
+                <button type="button" id="cancelLeaveBtn" style="background:#e74c3c;color:#fff;padding:7px 18px;border:none;border-radius:6px;font-weight:600;margin-right:0.7rem;">Cancel</button>
+                <button type="submit" style="background:#27ae60;color:#fff;padding:7px 18px;border:none;border-radius:6px;font-weight:600;">Apply</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Payslip Request Modal -->
+<div id="payslipRequestModal" class="modal">
+    <div class="modal-content">
+        <span class="close" id="closePayslipRequestModal">&times;</span>
+        <h2 style="margin-top:0;font-size:1.25rem;color:#223043;">Request Payslip</h2>
+        <form id="payslipRequestForm">
+            <div style="margin-bottom:1rem;">
+                <label>Month:</label>
+                <input type="month" id="requestPayslipMonth" required style="width:100%;padding:7px 10px;border-radius:6px;border:1px solid #ccc;">
+            </div>
+            <div style="text-align:right;">
+                <button type="button" id="cancelPayslipRequestBtn" style="background:#e74c3c;color:#fff;padding:7px 18px;border:none;border-radius:6px;font-weight:600;margin-right:0.7rem;">Cancel</button>
+                <button type="submit" style="background:#27ae60;color:#fff;padding:7px 18px;border:none;border-radius:6px;font-weight:600;">Request</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Payslip View Modal -->
+<div id="payslipViewModal" class="modal">
+    <div class="modal-content">
+        <span class="close" id="closePayslipViewModal">&times;</span>
+        <div id="payslipDetails"></div>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // --- Initial setup and data loading ---
+    const syncIndicator = document.getElementById('syncIndicator');
+    
+    // Function to sync with admin HRMS
+    async function syncWithHRMS() {
+        try {
+            syncIndicator.className = 'sync-indicator syncing';
+            syncIndicator.textContent = 'Syncing with HRMS...';
+            
+            // Get current employee data from localStorage
+            const allEmployees = JSON.parse(localStorage.getItem('hrms_employees') || "[]");
+            const loggedEmpId = localStorage.getItem('hrms_loggedin_empid');
+            const employee = allEmployees.find(e => e.id === loggedEmpId) || {};
+            
+            // In a real implementation, this would be an API call to the admin system
+            // For this example, we'll simulate a sync with a delay
+            await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate network delay
+
+
+            
+            // Get attendance data from admin system
+            const adminAttendance = JSON.parse(localStorage.getItem('hrms_attendance') || "[]");
+            
+            // Filter attendance for current employee
+            const employeeAttendance = adminAttendance.filter(a => 
+                a.employeeId === employee.id || 
+                (a.employee && a.employee.toLowerCase() === employee.name.toLowerCase())
+            );
+            
+            // Update employee data with admin data
+            employee.attendance = employeeAttendance;
+            
+            // Save back to localStorage
+            const idx = allEmployees.findIndex(e => e.id === employee.id);
+            if (idx !== -1) allEmployees[idx] = employee;
+            localStorage.setItem('hrms_employees', JSON.stringify(allEmployees));
+            
+            syncIndicator.className = 'sync-indicator synced';
+            syncIndicator.textContent = 'Synced with HRMS';
+            
+            // Hide indicator after 3 seconds
+            setTimeout(() => {
+                syncIndicator.className = 'sync-indicator';
+            }, 3000);
+            
+            return true;
+        } catch (error) {
+            console.error('Sync failed:', error);
+            syncIndicator.className = 'sync-indicator';
+            return false;
+        }
+    }
+    
+    // Function to get employee data with sync
+    async function getEmployeeData() {
+        // First, sync with admin system
+        await syncWithHRMS();
+        
+        // Then get data from localStorage
+        const allEmployees = JSON.parse(localStorage.getItem('hrms_employees') || "[]");
+        const loggedEmpId = localStorage.getItem('hrms_loggedin_empid');
+        const employee = allEmployees.find(e => e.id === loggedEmpId) || {};
+        
+        if (!employee || Object.keys(employee).length === 0) {
+            // Redirect to login if no employee data found
+            alert("Session expired. Please login again.");
+            window.location.href = 'D:\Local Disk\HRMS SITE\hrms login portal.html';
+            return null;
+        }
+        
+        // Initialize arrays if they don't exist
+        employee.attendance = employee.attendance || [];
+        employee.leaves = employee.leaves || [];
+        employee.payslips = employee.payslips || [];
+        employee.documents = employee.documents || [];
+        
+        return {
+            employee,
+            attendance: employee.attendance,
+            leaves: employee.leaves,
+            payslips: employee.payslips,
+            documents: employee.documents,
+            allEmployees
+        };
+    }
+    
+    // --- Panel Renderers ---
+    function renderProfile(employeeData) {
+        const { employee } = employeeData;
+        const fields = [employee.name, employee.email, employee.department, employee.designation, employee.doj, employee.phone, employee.address, employee.profilePic];
+        const filled = fields.filter(f => f && f.trim() !== "").length;
+        const percent = Math.round((filled / fields.length) * 100);
+        
+        // Calculate total salary
+        let basic = parseFloat((employee.basicSalary || "0").toString().replace(/[^0-9.]/g, ""));
+        let allow = parseFloat((employee.allowances || "0").toString().replace(/[^0-9.]/g, ""));
+        let total = basic + allow;
+        let salaryDisplay = total.toLocaleString();
+        if ((employee.basicSalary || "").includes("₹") || (employee.allowances || "").includes("₹")) {
+            salaryDisplay = "₹" + salaryDisplay;
+        }
+        
+        return `
+            <h1>My Profile</h1>
+            <div style="margin-bottom:1.2rem;">
+                <div style="background:#eaf1fb;border-radius:8px;overflow:hidden;height:18px;width:100%;margin-bottom:0.5rem;">
+                    <div style="background:#27ae60;height:100%;width:${percent}%;transition:width 0.4s;"></div>
+                </div>
+                <div style="font-size:0.98em;color:#223043;">Profile Completion: <b>${percent}%</b></div>
+            </div>
+            <div class="profile-info" style="flex-wrap:wrap;">
+               <div class="profile-pic" style="
+    margin-bottom:1rem;
+    width:100px;
+    height:100px;
+    border-radius:50%;
+    overflow:hidden;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:#f0f4fa;
+    border:2px solid #223043;
+    box-shadow:0 4px 12px rgba(0,0,0,0.15);
+    font-size:2rem;
+    font-weight:bold;
+    color:#223043;
+">
+    ${
+        employee.profilePic 
+        ? `<img src="${employee.profilePic}" alt="Profile" style="width:150%;height:100%;object-fit:cover;">` 
+        : `${(employee.name || "U N").split(' ').map(n => n[0]).join('')}`
+    }
+</div>
+                    <div style="display:flex;flex-direction:column;align-items:center;">
+                    <input type="file" id="profilePicInput" accept="image/*" style="margin-top:0.7rem;">
+                </div>
+                <div class="profile-details" style="flex:1;min-width:260px;">
+                    <table>
+                        <tr><td class="label">Employee ID</td><td>${employee.id}</td></tr>
+                        <tr><td class="label">Name</td><td><input type="text" id="editName" value="${employee.name || ''}" style="width:100%;"></td></tr>
+                        <tr><td class="label">Email</td><td><input type="email" id="editEmail" value="${employee.email || ''}" style="width:100%;"></td></tr>
+                        <tr><td class="label">Department</td><td><input type="text" id="editDept" value="${employee.department || ''}" style="width:100%;"></td></tr>
+                        <tr><td class="label">Designation</td><td><input type="text" id="editDesig" value="${employee.department || ''}" style="width:100%;"></td></tr>
+                        <tr><td class="label">Date of Joining</td><td><input type="date" value="${employee.dateofjoin || ''}" style="width:100%;"></td></tr>
+                        <tr><td class="label">Phone</td><td><input type="tel" id="editPhone" value="${employee.mobile || ''}" style="width:100%;"></td></tr>
+                        <tr><td class="label">Address</td><td><textarea id="editAddress" rows="2" style="width:100%;">${employee.address || ''}</textarea></td></tr>
+                    </table>
+                    <button id="saveProfileBtn" style="margin-top:1.2rem;background:#2980b9;color:#fff;padding:8px 22px;border:none;border-radius:7px;font-size:1.05rem;font-weight:600;cursor:pointer;">Save Changes</button>
+                    <div id="profileMsg" style="margin-top:0.7rem;font-weight:600;"></div>
+                    <h2 style="margin-top:2rem;font-size:1.15rem;color:#223043;">Quick Stats</h2>
+                    <div style="display:flex;gap:1.2rem;flex-wrap:wrap;">
+                        <div style="background:#eaf1fb;padding:0.8rem 1.2rem;border-radius:8px;text-align:center;">
+                            <div style="font-size:1.2rem;font-weight:700;color:#223043;">${employee.casualLeave || 0}</div>
+                            <div style="color:#2980b9;font-weight:600;">Casual Leave</div>
+                        </div>
+                        <div style="background:#eaf1fb;padding:0.8rem 1.2rem;border-radius:8px;text-align:center;">
+                            <div style="font-size:1.2rem;font-weight:700;color:#223043;">${employee.sickLeave || 0}</div>
+                            <div style="color:#f39c12;font-weight:600;">Sick Leave</div>
+                        </div>
+                        <div style="background:#eaf1fb;padding:0.8rem 1.2rem;border-radius:8px;text-align:center;">
+                            <div style="font-size:1.2rem;font-weight:700;color:#223043;">${employee.paidLeave || 0}</div>
+                            <div style="color:#27ae60;font-weight:600;">Paid Leave</div>
+                        </div>
+                        <div style="background:#eaf1fb;padding:0.8rem 1.2rem;border-radius:8px;text-align:center;">
+                            <div style="font-size:1.2rem;font-weight:700;color:#223043;">${salaryDisplay}</div>
+                            <div style="color:#2980b9;font-weight:600;">Total Salary</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    function renderAttendance(employeeData) {
+        const { attendance } = employeeData;
+        const present = attendance.filter(a => a.status?.toLowerCase() === "present").length;
+        const absent = attendance.filter(a => a.status?.toLowerCase() === "absent").length;
+        const leave = attendance.filter(a => a.status?.toLowerCase() === "leave").length;
+        const late = attendance.filter(a => a.status?.toLowerCase() === "late").length;
+        const halfDay = attendance.filter(a => a.status?.toLowerCase() === "half day").length;
+        const total = attendance.length;
+        
+        // Get last 30 days for calendar view
+        const last30Days = [];
+        const today = new Date();
+        for (let i = 29; i >= 0; i--) {
+            const date = new Date(today);
+            date.setDate(date.getDate() - i);
+            last30Days.push(date.toISOString().slice(0, 10));
+        }
+        
+        // Create calendar with attendance data
+        const calendar = last30Days.map(date => {
+            const attendanceRecord = attendance.find(a => a.date === date);
+            const status = attendanceRecord ? attendanceRecord.status?.toLowerCase() || "absent" : "empty";
+            const dayNum = date.slice(-2);
+            
+            let className = "calendar-day calendar-empty";
+            if (status === "present") className = "calendar-day calendar-present";
+            else if (status === "absent") className = "calendar-day calendar-absent";
+            else if (status === "leave") className = "calendar-day calendar-leave";
+            else if (status === "late") className = "calendar-day calendar-late";
+            else if (status === "half day") className = "calendar-day calendar-halfday";
+            
+            return `<div class="${className}" title="${date}: ${attendanceRecord ? attendanceRecord.status : 'No data'}">${dayNum}</div>`;
+        }).join('');
+        
+        return `
+            <div style="font-family: 'Segoe UI', Arial, sans-serif; padding:1rem; max-width:1000px; margin:auto;">
+                <h1 style="color:#223043; margin-bottom:1rem;">My Attendance</h1>
+                <!-- Month Filter -->
+                <div style="margin-bottom:1.5rem; display:flex; flex-wrap:wrap; align-items:center; gap:0.5rem;">
+                    <label style="font-weight:600; color:#223043;">Check Month:</label>
+                    <input type="month" id="attendanceMonthFilter" style="padding:6px 12px; border-radius:6px; border:1px solid #ccc;">
+                    <span id="attendanceStatusMsg" style="margin-left:1rem; font-weight:600; color:#555;"></span>
+                </div>
+                <!-- Summary Cards -->
+                <div style="display:flex; gap:1rem; flex-wrap:wrap; margin-bottom:1.5rem;">
+                    ${[
+                        { label: 'Present', value: present, color: '#27ae60' },
+                        { label: 'Absent', value: absent, color: '#e74c3c' },
+                        { label: 'Leave', value: leave, color: '#f39c12' },
+                        { label: 'Late', value: late, color: '#e67e22' },
+                        { label: 'Half Day', value: halfDay, color: '#9b59b6' },
+                        { label: 'Total Days', value: total, color: '#223043' }
+                    ].map(c => `
+                        <div style="flex:1; min-width:120px; background:#eaf1fb; padding:1rem; border-radius:10px; text-align:center;">
+                            <div style="font-size:2rem; font-weight:700; color:${c.color};">${c.value}</div>
+                            <div style="font-weight:600; color:${c.color}; margin-top:0.2rem;">${c.label}</div>
+                        </div>
+                    `).join('')}
+                </div>
+                <!-- Attendance % -->
+                <div style="margin-bottom:1.5rem; font-size:1.1em;">
+                    <b>Attendance Percentage:</b> ${total > 0 ? `<span style="color:#27ae60;">${Math.round((present / total) * 100)}%</span>` : '-'}
+                </div>
+                <!-- Calendar -->
+                <div style="margin-bottom:1.5rem;">
+                    <div style="font-weight:600; color:#223043; margin-bottom:0.5rem;">Last 30 Days Calendar View:</div>
+                    <div class="calendar-container">${calendar}</div>
+                    <div style="font-size:0.95em; color:#888; margin-top:0.5rem;">
+                        <span style="display:inline-block;width:12px;height:12px;background:#27ae60;border-radius:2px;margin-right:5px;"></span>Present
+                        <span style="display:inline-block;width:12px;height:12px;background:#e74c3c;border-radius:2px;margin:0 5px 0 15px;"></span>Absent
+                        <span style="display:inline-block;width:12px;height:12px;background:#f39c12;border-radius:2px;margin:0 5px 0 15px;"></span>Leave
+                        <span style="display:inline-block;width:12px;height:12px;background:#e67e22;border-radius:2px;margin:0 5px 0 15px;"></span>Late
+                        <span style="display:inline-block;width:12px;height:12px;background:#9b59b6;border-radius:2px;margin:0 5px 0 15px;"></span>Half Day
+                    </div>
+                </div>
+                <!-- Filters & Export -->
+                <div style="display:flex; gap:1rem; flex-wrap:wrap; margin-bottom:1.5rem; align-items:center;">
+                    <div>
+                        <label style="font-weight:600; color:#223043;">Filter:</label>
+                        <select id="attendanceFilter" style="padding:6px 12px; border-radius:6px; border:1px solid #ccc; margin-left:0.5rem;">
+                            <option value="all">All</option>
+                            <option value="present">Present</option>
+                            <option value="absent">Absent</option>
+                            <option value="leave">Leave</option>
+                            <option value="late">Late</option>
+                            <option value="half day">Half Day</option>
+                        </select>
+                    </div>
+                    <button id="exportAttendanceBtn" style="background:#27ae60; color:#fff; padding:8px 18px; border:none; border-radius:6px; font-weight:600; cursor:pointer;">
+                        Export Attendance (CSV)
+                    </button>
+                    <button id="refreshAttendanceBtn" style="background:#2980b9; color:#fff; padding:8px 18px; border:none; border-radius:6px; font-weight:600; cursor:pointer;">
+                        Refresh from HRMS
+                    </button>
+                </div>
+                <!-- Attendance Table -->
+                <div style="overflow-x:auto; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,0.05);">
+                    <table style="width:100%; border-collapse:collapse; min-width:300px;">
+                        <thead style="background:#f5f7fa;">
+                            <tr>
+                                <th style="padding:10px; text-align:left;">Date</th>
+                                <th style="padding:10px; text-align:left;">Status</th>
+                                <th style="padding:10px; text-align:left;">Description</th>
+                                <th style="padding:10px; text-align:left;">Morning In</th>
+                                <th style="padding:10px; text-align:left;">Evening Out</th>
+                                <th style="padding:10px; text-align:left;">Extra Hours</th>
+                            </tr>
+                        </thead>
+                        <tbody id="attendanceTableBody">
+                            ${
+                                attendance.length === 0
+                                ? `<tr><td colspan="6" style="text-align:center; color:#888; padding:10px;">No attendance records found.</td></tr>`
+                                : attendance.map(a => `
+                                    <tr style="${a.date === new Date().toISOString().slice(0, 10) ? 'background:#eaf1fb;font-weight:600;' : ''}">
+                                        <td style="padding:8px 10px;">${a.date}</td>
+                                        <td style="padding:8px 10px;">
+                                            <span class="badge badge-${a.status?.toLowerCase().replace(' ', '') || 'absent'}">${a.status || 'Absent'}</span>
+                                        </td>
+                                        <td style="padding:8px 10px;">${a.description || '-'}</td>
+                                        <td style="padding:8px 10px;">${a.morningIn || '-'}</td>
+                                        <td style="padding:8px 10px;">${a.eveningOut || '-'}</td>
+                                        <td style="padding:8px 10px;">${a.extraHours || '-'}</td>
+                                    </tr>
+                                `).join('')
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        `;
+    }
+    
+    function renderLeaves(employeeData) {
+        const { leaves } = employeeData;
+        const total = leaves.length;
+        const approved = leaves.filter(l => l.status && l.status.toLowerCase() === "approved").length;
+        const pending = leaves.filter(l => l.status && l.status.toLowerCase() === "pending").length;
+        const rejected = leaves.filter(l => l.status && l.status.toLowerCase() === "rejected").length;
+        
+        return `
+            <h1>My Leaves</h1>
+            <div style="display:flex;gap:2rem;flex-wrap:wrap;margin-bottom:1.5rem;">
+                <div style="flex:1;min-width:160px;background:#eaf1fb;padding:1.2rem 1rem;border-radius:10px;text-align:center;">
+                    <div style="font-size:2rem;font-weight:700;color:#223043;">${total}</div>
+                    <div style="color:#2980b9;font-weight:600;">Total Leaves</div>
+                </div>
+                <div style="flex:1;min-width:160px;background:#eaf1fb;padding:1.2rem 1rem;border-radius:10px;text-align:center;">
+                    <div style="font-size:2rem;font-weight:700;color:#27ae60;">${approved}</div>
+                    <div style="color:#27ae60;font-weight:600;">Approved</div>
+                </div>
+                <div style="flex:1;min-width:160px;background:#eaf1fb;padding:1.2rem 1rem;border-radius:10px;text-align:center;">
+                    <div style="font-size:2rem;font-weight:700;color:#f39c12;">${pending}</div>
+                    <div style="color:#f39c12;font-weight:600;">Pending</div>
+                </div>
+                <div style="flex:1;min-width:160px;background:#eaf1fb;padding:1.2rem 1rem;border-radius:10px;text-align:center;">
+                    <div style="font-size:2rem;font-weight:700;color:#e74c3c;">${rejected}</div>
+                    <div style="color:#e74c3c;font-weight:600;">Rejected</div>
+                </div>
+            </div>
+            <button id="requestLeaveBtn" style="background:#2980b9;color:#fff;padding:10px 26px;border:none;border-radius:7px;font-size:1.08rem;font-weight:600;cursor:pointer;margin-bottom:1.2rem;">Request Leave</button>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>From</th>
+                            <th>To</th>
+                            <th>Status</th>
+                            <th>Reason</th>
+                            <th>Applied On</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leavesTableBody">
+                        ${leaves.length === 0 ? `<tr><td colspan="6" style="text-align:center;color:#888;">No leave records found.</td></tr>` : leaves.map(l => `
+                            <tr>
+                                <td>${l.type}</td>
+                                <td>${l.from}</td>
+                                <td>${l.to}</td>
+                                <td><span class="badge badge-${l.status ? l.status.toLowerCase() : 'pending'}">${l.status || 'Pending'}</span></td>
+                                <td>${l.reason || ''}</td>
+                                <td>${l.appliedOn || ''}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        `;
+    }
+    
+    function renderPayslips(employeeData) {
+        const { payslips } = employeeData;
+        
+        return `
+            <h1>My Payslips</h1>
+            <button id="requestPayslipBtn" style="background:#27ae60;color:#fff;padding:10px 26px;border:none;border-radius:7px;font-size:1.08rem;font-weight:600;cursor:pointer;margin-bottom:1.2rem;">Request Payslip</button>
+            <div class="table-responsive">
+                <table id="payslipsTable">
+                    <thead>
+                        <tr>
+                            <th>Month</th>
+                            <th>Net Pay</th>
+                            <th>Download</th>
+                            <th>View</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${payslips.length === 0 ? `<tr><td colspan="4" style="text-align:center;color:#888;">No payslips found.</td></tr>` : payslips.map((p, i) => `
+                            <tr>
+                                <td>${p.month}</td>
+                                <td>${p.net}</td>
+                                <td><a href="${p.download || '#'}" class="doc-link" target="_blank">Download</a></td>
+                                <td><button class="viewPayslipBtn" data-idx="${i}" style="background:#2980b9;color:#fff;padding:5px 16px;border:none;border-radius:6px;font-weight:600;cursor:pointer;">View</button></td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        `;
+    }
+    
+    function renderDocuments(employeeData) {
+        const { documents } = employeeData;
+        
+        return `
+            <h1>My Documents</h1>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr><th>Document Name</th><th>Download</th></tr>
+                    </thead>
+                    <tbody>
+                        ${documents.length === 0 ? 
+                            `<tr><td colspan="2" style="text-align:center;color:#888;">No documents found.</td></tr>` : 
+                            documents.map(d => `
+                                <tr>
+                                    <td>${d.name}</td>
+                                    <td><a href="${d.link}" class="doc-link" target="_blank">Download</a></td>
+                                </tr>
+                            `).join('')
+                        }
+                    </tbody>
+                </table>
+            </div>
+        `;
+    }
+    
+    function renderAIAssistant(employeeData) {
+        return `
+            <h1>AI Assistant</h1>
+            <div style="margin-bottom:1rem;">
+                <input type="text" id="aiQuery" placeholder="Ask HR-related questions..." style="width:70%;padding:8px 14px;border-radius:7px;border:1px solid #ccc;font-size:1.08rem;">
+                <button id="askAI" style="background:#2980b9;color:#fff;padding:8px 22px;border:none;border-radius:7px;font-size:1.05rem;font-weight:600;cursor:pointer;margin-left:1rem;">Ask</button>
+            </div>
+            <div id="aiResponse" style="margin-top:1.2rem;font-size:1.08rem;color:#223043;background:#eaf1fb;padding:1.2rem;border-radius:8px;min-height:60px;"></div>
+            <div style="margin-top:2rem;">
+                <h3 style="color:#2980b9;">Quick FAQ</h3>
+                <ul style="color:#223043;font-size:1.05em;">
+                    <li>How do I apply for leave?</li>
+                    <li>How is my salary calculated?</li>
+                    <li>Who do I contact for attendance issues?</li>
+                </ul>
+            </div>
+        `;
+    }
+    
+    // --- Panel Switcher and Event Listeners ---
+    async function renderPanel(panelKey) {
+        // Get employee data with sync
+        const employeeData = await getEmployeeData();
+        if (!employeeData) return;
+        
+        const { employee } = employeeData;
+        const empHeader = `<div style="margin-bottom:1.5rem;padding:0.7rem 1.2rem;background:#eaf1fb;border-radius:8px;display:flex;gap:2.5rem;align-items:center;"><span style="font-weight:600;color:#223043;">Employee ID:</span> <span style="font-size:1.08rem;">${employee.id}</span> <span style="font-weight:600;color:#223043;">Name:</span> <span style="font-size:1.08rem;">${employee.name}</span></div>`;
+        let html = "";
+        
+        if (panelKey === "myprofile") html = renderProfile(employeeData);
+        else if (panelKey === "myattendance") html = renderAttendance(employeeData);
+        else if (panelKey === "myleaves") html = renderLeaves(employeeData);
+        else if (panelKey === "mypayslips") html = renderPayslips(employeeData);
+        else if (panelKey === "mydocuments") html = renderDocuments(employeeData);
+        else if (panelKey === "aiassistant") html = renderAIAssistant(employeeData);
+        
+        document.getElementById("panel-content").innerHTML = empHeader + html;
+        
+        // Add event listeners after rendering the panel
+        if (panelKey === "myprofile") {
+            const input = document.getElementById("profilePicInput");
+            if (input) {
+                input.onchange = async function(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = async function(evt) {
+                            const employeeData = await getEmployeeData();
+                            const { employee, allEmployees } = employeeData;
+                            
+                            employee.profilePic = evt.target.result;
+                            const idx = allEmployees.findIndex(e => e.id === employee.id);
+                            if (idx !== -1) allEmployees[idx].profilePic = evt.target.result;
+                            localStorage.setItem('hrms_employees', JSON.stringify(allEmployees));
+                            renderPanel("myprofile");
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                };
+            }
+            
+            const saveBtn = document.getElementById("saveProfileBtn");
+            if (saveBtn) {
+                saveBtn.onclick = async function() {
+                    const employeeData = await getEmployeeData();
+                    const { employee, allEmployees } = employeeData;
+                    
+                    employee.name = document.getElementById("editName").value.trim();
+                    employee.email = document.getElementById("editEmail").value.trim();
+                    employee.department = document.getElementById("editDept").value.trim();
+                    employee.designation = document.getElementById("editDesig").value.trim();
+                    employee.doj = document.getElementById("editDoj").value;
+                    employee.phone = document.getElementById("editPhone").value.trim();
+                    employee.address = document.getElementById("editAddress").value.trim();
+                    
+                    const idx = allEmployees.findIndex(e => e.id === employee.id);
+                    if (idx !== -1) allEmployees[idx] = employee;
+                    localStorage.setItem('hrms_employees', JSON.stringify(allEmployees));
+                    
+                    document.getElementById("profileMsg").textContent = "Profile updated!";
+                    setTimeout(() => document.getElementById("profileMsg").textContent = "", 2000);
+                    renderPanel("myprofile");
+                };
+            }
+        } else if (panelKey === "myattendance") {
+            const filterInput = document.getElementById("attendanceMonthFilter");
+            const filterSelect = document.getElementById("attendanceFilter");
+            const refreshBtn = document.getElementById("refreshAttendanceBtn");
+            
+            const updateAttendanceTable = async () => {
+                const employeeData = await getEmployeeData();
+                const { attendance } = employeeData;
+                
+                const month = filterInput.value;
+                const statusFilter = filterSelect.value;
+                let filteredData = attendance;
+                
+                if (month) {
+                    filteredData = filteredData.filter(a => a.date.startsWith(month));
+                }
+                if (statusFilter !== "all") {
+                    filteredData = filteredData.filter(a => a.status?.toLowerCase() === statusFilter);
+                }
+                
+                const tableBody = document.getElementById("attendanceTableBody");
+                if (tableBody) {
+                    if (filteredData.length === 0) {
+                        tableBody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#888; padding:10px;">No records for this month/filter.</td></tr>`;
+                    } else {
+                        tableBody.innerHTML = filteredData.map(a => `
+                            <tr style="${a.date === new Date().toISOString().slice(0, 10) ? 'background:#eaf1fb;font-weight:600;' : ''}">
+                                <td>${a.date}</td>
+                                <td><span class="badge badge-${a.status?.toLowerCase().replace(' ', '') || 'absent'}">${a.status || 'Absent'}</span></td>
+                                <td>${a.description || '-'}</td>
+                                <td>${a.morningIn || '-'}</td>
+                                <td>${a.eveningOut || '-'}</td>
+                                <td>${a.extraHours || '-'}</td>
+                            </tr>
+                        `).join('');
+                    }
+                }
+            };
+            
+            filterInput.onchange = updateAttendanceTable;
+            filterSelect.onchange = updateAttendanceTable;
+            
+            if (refreshBtn) {
+                refreshBtn.onclick = async function() {
+                    await syncWithHRMS();
+                    updateAttendanceTable();
+                };
+            }
+            
+            // Export functionality
+            const exportBtn = document.getElementById("exportAttendanceBtn");
+            if (exportBtn) {
+                exportBtn.onclick = async function() {
+                    const employeeData = await getEmployeeData();
+                    const { attendance, employee } = employeeData;
+                    
+                    let csv = 'Date,Status,Description,Morning In,Evening Out,Extra Hours\n';
+                    const dataToExport = attendance.filter(a => {
+                        const monthMatch = !filterInput.value || a.date.startsWith(filterInput.value);
+                        const statusMatch = filterSelect.value === "all" || a.status?.toLowerCase() === filterSelect.value;
+                        return monthMatch && statusMatch;
+                    });
+                    
+                    dataToExport.forEach(row => {
+                        csv += `${row.date},${row.status || 'Absent'},${row.description || '-'},${row.morningIn || '-'},${row.eveningOut || '-'},${row.extraHours || '-'}\n`;
+                    });
+                    
+                    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                    const link = document.createElement("a");
+                    const url = URL.createObjectURL(blob);
+                    link.setAttribute("href", url);
+                    link.setAttribute("download", `attendance_${employee.id}.csv`);
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                };
+            }
+        } else if (panelKey === "myleaves") {
+            const requestLeaveBtn = document.getElementById("requestLeaveBtn");
+            const leaveModal = document.getElementById("leaveModal");
+            const closeLeaveModalBtn = document.getElementById("closeLeaveModal");
+            const cancelLeaveBtn = document.getElementById("cancelLeaveBtn");
+            const leaveForm = document.getElementById("leaveForm");
+            
+            if (requestLeaveBtn) requestLeaveBtn.onclick = () => leaveModal.style.display = "block";
+            if (closeLeaveModalBtn) closeLeaveModalBtn.onclick = () => leaveModal.style.display = "none";
+            if (cancelLeaveBtn) cancelLeaveBtn.onclick = () => leaveModal.style.display = "none";
+            
+            if (leaveForm) {
+                leaveForm.onsubmit = async function(e) {
+                    e.preventDefault();
+                    
+                    const employeeData = await getEmployeeData();
+                    const { employee, allEmployees, leaves } = employeeData;
+                    
+                    const newLeave = {
+                        type: document.getElementById("leaveType").value,
+                        from: document.getElementById("leaveFrom").value,
+                        to: document.getElementById("leaveTo").value,
+                        reason: document.getElementById("leaveReason").value,
+                        status: "Pending",
+                        appliedOn: new Date().toISOString().slice(0, 10)
+                    };
+                    
+                    const newLeaves = [...leaves, newLeave];
+                    employee.leaves = newLeaves;
+                    const idx = allEmployees.findIndex(e => e.id === employee.id);
+                    if (idx !== -1) allEmployees[idx] = employee;
+                    localStorage.setItem('hrms_employees', JSON.stringify(allEmployees));
+                    
+                    alert("Leave request submitted successfully!");
+                    leaveModal.style.display = "none";
+                    renderPanel("myleaves");
+                };
+            }
+        } else if (panelKey === "mypayslips") {
+            const requestPayslipBtn = document.getElementById("requestPayslipBtn");
+            const payslipRequestModal = document.getElementById("payslipRequestModal");
+            const closePayslipRequestModalBtn = document.getElementById("closePayslipRequestModal");
+            const cancelPayslipRequestBtn = document.getElementById("cancelPayslipRequestBtn");
+            const payslipRequestForm = document.getElementById("payslipRequestForm");
+            const payslipViewModal = document.getElementById("payslipViewModal");
+            const closePayslipViewModalBtn = document.getElementById("closePayslipViewModal");
+            
+            if (requestPayslipBtn) requestPayslipBtn.onclick = () => payslipRequestModal.style.display = "block";
+            if (closePayslipRequestModalBtn) closePayslipRequestModalBtn.onclick = () => payslipRequestModal.style.display = "none";
+            if (cancelPayslipRequestBtn) cancelPayslipRequestBtn.onclick = () => payslipRequestModal.style.display = "none";
+            if (closePayslipViewModalBtn) closePayslipViewModalBtn.onclick = () => payslipViewModal.style.display = "none";
+            
+            if (payslipRequestForm) {
+                payslipRequestForm.onsubmit = async function(e) {
+                    e.preventDefault();
+                    
+                    const employeeData = await getEmployeeData();
+                    const { employee, allEmployees, payslips } = employeeData;
+                    
+                    const requestedMonth = document.getElementById("requestPayslipMonth").value;
+                    const monthText = new Date(requestedMonth + "-01").toLocaleString('en-IN', { month: 'long', year: 'numeric' });
+                    
+                    const existingPayslip = payslips.find(p => p.month === monthText);
+                    if (existingPayslip) {
+                        alert("Payslip for this month already exists.");
+                        return;
+                    }
+                    
+                    // Calculate net pay
+                    let basic = parseFloat((employee.basicSalary || "0").toString().replace(/[^0-9.]/g, ""));
+                    let allow = parseFloat((employee.allowances || "0").toString().replace(/[^0-9.]/g, ""));
+                    let gross = basic + allow;
+                    
+                    // Calculate deductions (simplified)
+                    let pf = basic * 0.12; // 12% PF
+                    let pt = 200; // Professional Tax
+                    let tds = gross > 50000 ? gross * 0.1 : 0; // 10% TDS if salary > 50k
+                    let deductions = pf + pt + tds;
+                    let net = gross - deductions;
+                    
+                    const newPayslip = {
+                        month: monthText,
+                        gross: '₹' + gross.toLocaleString("en-IN"),
+                        deductions: '₹' + deductions.toLocaleString("en-IN"),
+                        net: '₹' + net.toLocaleString("en-IN"),
+                        download: `#payslip-${requestedMonth}` // Placeholder for download link
+                    };
+                    
+                    const newPayslips = [...payslips, newPayslip];
+                    employee.payslips = newPayslips;
+                    const idx = allEmployees.findIndex(e => e.id === employee.id);
+                    if (idx !== -1) allEmployees[idx] = employee;
+                    localStorage.setItem('hrms_employees', JSON.stringify(allEmployees));
+                    
+                    alert("Payslip request for " + monthText + " submitted. It will be generated shortly.");
+                    payslipRequestModal.style.display = "none";
+                    renderPanel("mypayslips");
+                };
+            }
+            
+            document.querySelectorAll(".viewPayslipBtn").forEach(btn => {
+                btn.onclick = async function(e) {
+                    const idx = e.target.dataset.idx;
+                    const employeeData = await getEmployeeData();
+                    const { payslips } = employeeData;
+                    const payslip = payslips[idx];
+                // --- Render Payslip Details ---
+function renderPayslipDetails(payslip) {
+    if (!payslip) return;
+
+    // Build HTML structure
+    const detailsHtml = `
+        <div class="payslip-container">
+            <h2>
+                Payslip for <span class="highlight">${payslip.month}</span>
+            </h2>
+
+            <table class="payslip-table">
+                <tr>
+                    <td><b>Gross Pay</b></td>
+                    <td class="blue">${payslip.gross}</td>
+                </tr>
+                <tr>
+                    <td><b>Deductions</b></td>
+                    <td class="red">${payslip.deductions}</td>
+                </tr>
+                <tr>
+                    <td><b>Net Pay</b></td>
+                    <td class="green"><b>${payslip.net}</b></td>
+                </tr>
+            </table>
+
+            <p class="note">
+                *This is a simplified view. The full payslip contains a detailed breakdown 
+                of allowances, taxes, and contributions.
+            </p>
+        </div>
+    `;
+
+    // Inject into modal
+    document.getElementById("payslipDetails").innerHTML = detailsHtml;
+    document.getElementById("payslipViewModal").style.display = "block";
+}
+
+// --- Example usage after payroll data fetch ---
+payroll.forEach(payslip => {
+    const btn = document.createElement("button");
+    btn.textContent = `View Payslip (${payslip.month})`;
+    btn.onclick = () => renderPayslipDetails(payslip);
+    document.getElementById("payslipList").appendChild(btn);
+});
+
+// --- Styles ---
+const payslipStyle = document.createElement("style");
+payslipStyle.textContent = `
+.payslip-container {
+    padding:1rem 1.5rem;
+    font-family:'Segoe UI', Arial, sans-serif;
+}
+.payslip-container h2 {
+    margin:0;
+    font-size:1.4rem;
+    color:#223043;
+}
+.payslip-container .highlight {
+    color:#2980b9;
+}
+.payslip-table {
+    width:100%;
+    margin-top:1.2rem;
+    border-collapse:collapse;
+    font-size:1.05rem;
+}
+.payslip-table td {
+    padding:0.6rem;
+    border-bottom:1px solid #e0e6ed;
+}
+.payslip-table td:last-child {
+    text-align:right;
+}
+.payslip-table .blue { color:#2980b9; }
+.payslip-table .red { color:#e74c3c; }
+.payslip-table .green { color:#27ae60; }
+.payslip-container .note {
+    margin-top:1rem;
+    font-size:0.95rem;
+    color:#7f8c8d;
+}
+`;
+document.head.appendChild(payslipStyle);
+                    renderPayslipDetails(payslip);
+                };
+            });
+        } else if (panelKey === "aiassistant") {
+            const askBtn = document.getElementById("askAI");
+            const queryInput = document.getElementById("aiQuery");
+            const responseDiv = document.getElementById("aiResponse");
+            
+            if (askBtn) {
+                askBtn.onclick = function() {
+                    const query = queryInput.value.toLowerCase();
+                    let response = "";
+                    
+                    if (query.includes("leave")) {
+                        response = "You can apply for leave by navigating to the 'My Leaves' section and clicking the 'Request Leave' button. Fill out the form with the required details and submit it.";
+                    } else if (query.includes("salary")) {
+                        response = "Your salary calculation is based on your basic pay plus allowances, minus deductions like PF, Professional Tax, and Income Tax. You can view the breakdown on your payslips.";
+                    } else if (query.includes("contact") || query.includes("issues")) {
+                        response = "For attendance issues, please contact your immediate manager or the HR department. You can find their contact information in the company directory.";
+                    } else {
+                        response = "I am an HR assistant designed to answer basic queries. For complex issues, please contact your HR representative.";
+                    }
+                    
+                    responseDiv.textContent = response;
+                };
+            }
+        }
+    }
+    
+    // Initialize the portal by rendering the default panel
+    const menuItems = document.querySelectorAll("#menu li");
+    menuItems.forEach(item => {
+        item.addEventListener("click", function() {
+            menuItems.forEach(i => i.classList.remove("active"));
+            this.classList.add("active");
+            const panelKey = this.getAttribute("data-panel");
+            renderPanel(panelKey);
+        });
+    });
+    
+    // Load the default panel on page load
+    renderPanel("myprofile");
+});
+</script>
+</body>
+</html>

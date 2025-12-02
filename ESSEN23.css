@@ -1,0 +1,469 @@
+/* ---------------------------------------------------------
+    GLOBAL THEME & RESET
+--------------------------------------------------------- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    /* Color Palette */
+    --primary-color: #2980b9;     /* Bright Blue (Key Action) */
+    --secondary-color: #1f2a38;   /* Dark Navy/Slate (Sidebar/Borders) */
+    --accent-color: #2ecc71;      /* Success Green */
+    --danger-color: #e74c3c;      /* Error Red */
+    
+    /* Backgrounds & Text */
+    --bg-light: #f4f7fc;          
+    --bg-gradient-end: #e3edf9;   
+    --text-dark: #223043;         
+    --border-subtle: #d7dee7;     
+    
+    /* Effects & Transparency (Glassmorphism) */
+    --glass-background: rgba(255, 255, 255, 0.85);
+    --shadow-light: rgba(0, 0, 0, 0.08);
+    --shadow-heavy: rgba(0, 0, 0, 0.15);
+}
+
+html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+    font-family: "Segoe UI", 'Inter', Arial, sans-serif;
+    background: linear-gradient(135deg, var(--bg-light), var(--bg-gradient-end));
+    color: var(--text-dark);
+    line-height: 1.6;
+    min-height: 100vh; 
+    overflow-x: hidden; 
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+    transition: color 0.3s ease;
+}
+
+/* ---------------------------------------------------------
+    LAYOUT CONTAINER
+--------------------------------------------------------- */
+.container {
+    display: flex;
+    min-height: 100vh; 
+    width: 100%;
+}
+
+/* ---------------------------------------------------------
+    SIDEBAR 
+--------------------------------------------------------- */
+.sidebar {
+    width: 260px;
+    flex-shrink: 0; 
+    background: var(--secondary-color);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 6px 0 20px var(--shadow-heavy);
+    position: sticky; 
+    top: 0;
+    height: 100vh;
+    z-index: 50;
+    transition: width 0.3s ease, transform 0.3s ease;
+}
+
+.sidebar h2 {
+    padding: 1.5rem;
+    font-size: 1.5rem;
+    background: #16202c;
+    border-bottom: 1px solid #2f3c4c;
+    font-weight: 700;
+    text-align: center;
+    letter-spacing: 0.5px;
+}
+
+.menu {
+    padding: 1rem 0;
+    list-style: none;
+    flex: 1;
+    overflow-y: auto; 
+}
+
+.menu li {
+    padding: 1rem 1.8rem;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    font-size: 1.05rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-left: 5px solid transparent;
+}
+
+.menu li:hover {
+    background: rgba(41, 128, 185, 0.15);
+    color: #fff; 
+}
+
+.menu li.active {
+    background: rgba(41, 128, 185, 0.25);
+    color: var(--primary-color);
+    font-weight: 600;
+    border-left: 5px solid var(--primary-color);
+    box-shadow: inset 0 0 10px rgba(41, 128, 185, 0.2);
+}
+
+.menu li i {
+    font-size: 1.15rem;
+    transition: color 0.3s;
+    color: #aebfd4;
+}
+
+.menu li.active i {
+    color: var(--primary-color);
+}
+
+/* ---------------------------------------------------------
+    MAIN CONTENT AREA
+--------------------------------------------------------- */
+.main-content {
+    flex: 1; 
+    padding: 2.5rem 3rem;
+    overflow-y: auto;
+    min-width: 0;
+}
+
+/* ---------------------------------------------------------
+    PANELS (Glass UI / Card Design)
+--------------------------------------------------------- */
+.panel {
+    background: var(--glass-background);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 18px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 
+        0 10px 30px var(--shadow-light),
+        0 4px 8px rgba(0,0,0,0.05);
+    transition: 0.3s ease-in-out;
+    width: 100%; 
+}
+
+.panel:hover {
+    transform: translateY(-3px);
+    box-shadow:
+        0 15px 40px rgba(0,0,0,0.12),
+        0 6px 12px rgba(0,0,0,0.08);
+}
+
+.panel h1, .panel h2, .panel h3 {
+    margin-bottom: 1rem;
+    font-weight: 700;
+    border-bottom: 1px solid var(--border-subtle);
+    padding-bottom: 0.5rem;
+    word-break: break-word; 
+}
+
+.panel h1 { font-size: 2rem; color: var(--secondary-color); }
+.panel h2 { font-size: 1.6rem; color: var(--primary-color); }
+.panel h3 { font-size: 1.3rem; color: #4a6381; border-bottom: none; }
+
+/* ---------------------------------------------------------
+    FORMS 
+--------------------------------------------------------- */
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.8rem;
+    margin-bottom: 1.5rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    min-width: 0; 
+}
+
+.form-group label {
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #4a6381;
+    font-size: 0.95rem;
+}
+
+input, select, textarea {
+    padding: 0.65rem 1rem;
+    font-size: 1rem;
+    border-radius: 8px;
+    border: 1.5px solid var(--border-subtle);
+    outline: none;
+    transition: 0.3s;
+    background: #ffffff;
+    box-shadow: inset 0 1px 4px rgba(0,0,0,0.05);
+    width: 100%; 
+}
+
+input:focus, select:focus, textarea:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 4px rgba(41, 128, 185, 0.18);
+    background: #fcfdff;
+}
+
+.button-group {
+    grid-column: 1 / -1; 
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    padding-top: 10px;
+}
+
+/* ---------------------------------------------------------
+    BUTTONS 
+--------------------------------------------------------- */
+button {
+    padding: 0.7rem 1.4rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+}
+
+.primary-btn {
+    background: linear-gradient(135deg, #3498db, var(--primary-color));
+    color: #fff;
+}
+.primary-btn:hover {
+    background: linear-gradient(135deg, #2a7dae, #246fa4);
+}
+
+.save-btn {
+    background: linear-gradient(135deg, #2ecc71, var(--accent-color));
+    color: #fff;
+}
+
+.save-btn:hover {
+    background: linear-gradient(135deg, #25a860, #27ae60);
+}
+
+.delete-btn, .cancel-btn {
+    background: linear-gradient(135deg, #c0392b, var(--danger-color));
+    color: #fff;
+}
+
+.delete-btn:hover, .cancel-btn:hover {
+    background: linear-gradient(135deg, #9a2b21, #b83125);
+}
+
+/* ---------------------------------------------------------
+    NOTIFICATION 
+--------------------------------------------------------- */
+.notif {
+    position: fixed;
+    top: 30px;
+    right: 30px;
+    padding: 1.2rem 2rem;
+    border-radius: 12px;
+    color: #fff;
+    font-weight: 700;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+    z-index: 1000;
+    animation: fadeIn 0.5s ease-out;
+}
+
+.notif.success {
+    background: linear-gradient(90deg, #27ae60, var(--accent-color));
+}
+
+.notif.error {
+    background: linear-gradient(90deg, #e74c3c, var(--danger-color));
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateX(50px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+/* ---------------------------------------------------------
+    TABLE (Data Grid with Dark, Defined Lines)
+--------------------------------------------------------- */
+table {
+    width: 100%;
+    border-collapse: collapse; /* Essential for defined lines */
+    border-spacing: 0;
+    background: var(--glass-background);
+    border-radius: 14px;
+    border: 1px solid var(--secondary-color); /* Overall dark border */
+    
+    display: block; 
+    overflow-x: auto; 
+    
+    box-shadow: 0 8px 25px var(--shadow-light);
+    margin-top: 1.5rem;
+    min-width: 700px; 
+}
+
+table thead, table tbody {
+    display: table;
+    width: 100%;
+    table-layout: fixed; 
+}
+
+th {
+    background: linear-gradient(90deg, #d3dee9, #e1eaf3); 
+    font-weight: 700;
+    padding: 1rem 0.85rem;
+    border: 1px solid var(--secondary-color); /* Dark column/row divider */
+    cursor: pointer;
+    font-size: 1.05rem;
+    text-align: left;
+    color: var(--secondary-color);
+    box-sizing: border-box; 
+}
+
+td {
+    padding: 0.9rem 0.85rem;
+    border: 1px solid var(--secondary-color); /* Dark row/column divider */
+    font-size: 1rem;
+    transition: background-color 0.2s, color 0.2s;
+    vertical-align: middle;
+    box-sizing: border-box; 
+}
+
+tbody tr:hover {
+    background: linear-gradient(90deg, #d8e5f5, #c6d9f0);
+    color: var(--text-dark);
+}
+
+td input, td select {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.95rem;
+    width: 95%; 
+    display: block;
+}
+
+.table-actions {
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap; 
+    justify-content: center; 
+}
+.table-actions button {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+    white-space: nowrap;
+}
+
+/* ---------------------------------------------------------
+    BADGES 
+--------------------------------------------------------- */
+.badge {
+    padding: 0.4rem 1rem;
+    color: white;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.85em;
+    display: inline-block;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+}
+.badge-approved { background: linear-gradient(90deg, #2ecc71, #27ae60); }
+.badge-pending { background: linear-gradient(90deg, #f1c40f, #f39c12); }
+.badge-rejected { background: linear-gradient(90deg, #e74c3c, #c0392b); }
+
+/* ---------------------------------------------------------
+    METRICS/DASHBOARD CARDS
+--------------------------------------------------------- */
+.metric-card {
+    background: var(--glass-background);
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+    box-shadow: 0 4px 15px var(--shadow-light);
+    transition: 0.3s;
+}
+
+.metric-card h2 {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+    color: #4a6381;
+    border-bottom: none;
+}
+
+.metric-value {
+    font-size: 2.5rem;
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+/* ---------------------------------------------------------
+    RESPONSIVE ADJUSTMENTS 
+--------------------------------------------------------- */
+@media (max-width: 900px) {
+    .container { flex-direction: column; min-height: auto; }
+    
+    .sidebar { 
+        width: 100%; 
+        flex-direction: row; 
+        overflow-x: auto; 
+        height: auto; 
+        position: static; 
+        box-shadow: 0 4px 10px var(--shadow-heavy);
+    }
+    
+    .sidebar h2 { 
+        display: none; 
+    }
+    
+    .menu { 
+        flex-direction: row; 
+        display: flex; 
+        padding: 0;
+        overflow-x: auto; 
+        flex-grow: 1;
+        flex-wrap: nowrap; 
+    }
+    
+    .menu li { 
+        border-right: 1px solid #1a2533; 
+        border-bottom: 5px solid transparent; 
+        flex-shrink: 0; 
+        padding: 0.8rem 1rem; 
+        font-size: 0.9rem;
+        gap: 8px;
+    }
+    
+    .menu li:hover, .menu li.active { 
+        border-bottom: 4px solid var(--primary-color); 
+        background: #1f2a38;
+        padding-left: 1rem;
+    }
+
+    .main-content { 
+        padding: 1.5rem; 
+        width: 100%; 
+    }
+    .panel { padding: 1.5rem; }
+    
+    .form-grid { grid-template-columns: 1fr; }
+    .button-group { justify-content: stretch; }
+    .button-group button { flex: 1 1 auto; }
+}
+
+@media (max-width: 600px) {
+    .main-content { padding: 1rem; }
+    .panel h1 { font-size: 1.5rem; }
+    .panel h2 { font-size: 1.3rem; }
+    .table-actions { flex-direction: column; gap: 0.4rem; }
+    .table-actions button { flex: 1 1 auto; }
+}
